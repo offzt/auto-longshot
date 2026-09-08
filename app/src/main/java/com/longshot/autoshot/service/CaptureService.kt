@@ -188,7 +188,15 @@ class CaptureService : Service() {
 
             val outW = (metrics.widthPixels * outputScale).toInt().coerceIn(480, metrics.widthPixels)
             val slidePx = (metrics.heightPixels * slideRatio / 100f).toInt()
-            stitcher = Stitcher(slidePx, outW)
+            // 动态内存预算（按字节，非像素）：随设备当前可用内存伸缩，上下限 96~320MB
+            val am = getSystemService(ACTIVITY_SERVICE) as android.app.ActivityManager
+            val memInfo = android.app.ActivityManager.MemoryInfo()
+            am.getMemoryInfo(memInfo)
+            val budget = (memInfo.availMem * 0.35f)
+                .toLong()
+                .coerceIn(96L * 1024 * 1024, 320L * 1024 * 1024)
+            Log.i(TAG, "内存预算=${budget / 1048576}MB（可用内存 ${memInfo.availMem / 1048576}MB）")
+            stitcher = Stitcher(slidePx, outW, memoryBudgetBytes = budget)
 
             // 第一帧：不滑动直接截图（截图时隐藏悬浮窗防残影；偶发失败自动重试一次）
             var first = captureFrameHidingFloating()
@@ -248,12 +256,26 @@ class CaptureService : Service() {
                 if (cropped !== frame) cropped.recycle()
                 frame.recycle()
                 if (r == -1) {
-                    postToast(getString(R.string.toast_memory_limit, maxFrames))
+                    postToast("已达${stitcher?.lastStopReason ?: "内存"}上限，自动停止并保存")
                     stopCapture()
                     break
                 }
                 if (r > 0) frames = r
                 updateUi()
+
+                // 3.5 用户设定的最大屏数（此前该设置未生效，已修复）+ 系统内存压力看门狗
+                if (frames >= maxFrames) {
+                    postToast("已达设定最大屏数（$maxFrames），自动停止并保存")
+                    stopCapture()
+                    break
+                }
+                am.getMemoryInfo(memInfo)
+                if (memInfo.availMem < 400L * 1024 * 1024) {
+                    Log.w(TAG, "系统可用内存不足(${memInfo.availMem / 1048576}MB)，主动停止")
+                    postToast("系统内存吃紧，自动停止并保存")
+                    stopCapture()
+                    break
+                }
             }
         } catch (e: Exception) {
             Log.e(TAG, "截屏循环异常: ${e.message}", e)

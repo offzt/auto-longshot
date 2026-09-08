@@ -20,8 +20,13 @@ import kotlin.math.abs
 class Stitcher(
     private val slidePx: Int,            // 期望滑动距离（原始屏 px，仅无提示时用于估算）
     private val outputWidth: Int,
-    private val maxTotalHeight: Int = 45_000
+    private val maxTotalHeight: Int = 45_000,
+    private val memoryBudgetBytes: Long = 300L * 1024 * 1024   // 画布内存预算（字节），动态按字节算而非按像素
 ) {
+
+    /** 最近一次返回 -1 的原因（"屏数上限"/"内存预算"），供调用方给用户明确提示 */
+    var lastStopReason: String = ""
+        private set
 
     private var canvas: Bitmap? = null   // ARGB_8888 累计长图
     private var frameCount = 0
@@ -117,9 +122,16 @@ class Stitcher(
         val overlap = findBestOverlap(cur.height, currProf, hint)
         lastOverlap = overlap
 
-        // 2. 拼接
+        // 2. 拼接（双重内存保护：像素高度硬上限 + 字节预算动态上限。
+        //    预算按字节算——"Memory is the quiet killer"，像素数不等于内存成本；
+        //    瞬态峰值 = merged + 旧画布 + 新帧 三者同时驻留）
         val totalH = cur.height + scaled.height - overlap
-        if (totalH > maxTotalHeight) {
+        val mergedBytes = totalH.toLong() * outputWidth * 4
+        val peakBytes = mergedBytes * 2 + scaled.height.toLong() * outputWidth * 4
+        if (totalH > maxTotalHeight || peakBytes > memoryBudgetBytes) {
+            lastStopReason = if (peakBytes > memoryBudgetBytes) "内存预算" else "高度上限"
+            Log.w(TAG, "内存保护触发（$lastStopReason）：peak=${peakBytes / 1048576}MB " +
+                "budget=${memoryBudgetBytes / 1048576}MB totalH=$totalH")
             if (scaled !== frame) scaled.recycle()
             return -1
         }
