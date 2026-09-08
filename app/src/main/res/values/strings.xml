@@ -3,34 +3,44 @@
     <string name="accessibility_service_label">自动长截图 - 自动滑动</string>
     <string name="accessibility_service_desc">用于在聊天等应用的列表界面中自动向上拖动滑动，配合截屏生成长图。滑动过程不会自动停止，需要您点击悬浮窗或通知栏的"停止截屏"按钮才会结束。</string>
 
-    <string name="btn_start">开始截屏（录屏授权）</string>
-    <string name="btn_stop">停止并保存</string>
-    <string name="btn_via_projection">无障碍免授权快捷模式</string>
-    <string name="btn_via_projection_hint">不想每次点授权时用（需 Android 11+ 且服务健康）</string>
+    <string name="tagline">无障碍滚动 · 行哈希精确拼接 · 动态内存保护</string>
 
-    <string name="btn_keep_alive">一键保活设置（防止无障碍被系统关闭）</string>
-    <string name="keep_alive_hint">小米/红米等系统会在后台清理时关闭无障碍服务，请依次完成下方设置</string>
+    <string name="status_ready">准备就绪</string>
+    <string name="status_capturing">截屏中 · %1$d 屏</string>
+    <string name="status_saved">已保存 %1$d 屏</string>
+
+    <string name="perm_title">运行条件</string>
+    <string name="perm_acc_title">无障碍服务</string>
+    <string name="perm_acc_sub">自动滚动的根基，必须开启</string>
+    <string name="perm_overlay_title">悬浮窗权限</string>
+    <string name="perm_overlay_sub">聊天页快速停止按钮</string>
+    <string name="perm_notif_title">通知权限</string>
+    <string name="perm_notif_sub">进度与通知栏停止入口</string>
+    <string name="perm_go">去开启</string>
+    <string name="perm_on">已开启</string>
+
+    <string name="settings_title">截屏设置</string>
+    <string name="settings_slide_ratio">滑动距离（每次滚动的屏高比例）</string>
+    <string name="settings_interval">截图间隔（滚动后等待稳定）</string>
+    <string name="settings_scale">输出缩放（长图宽度）</string>
+
+    <string name="btn_start">开始截屏</string>
+    <string name="btn_stop">停止并保存</string>
+    <string name="btn_via_projection">无障碍快捷模式（免授权）</string>
+
+    <string name="btn_keep_alive">一键保活</string>
+    <string name="keep_alive_hint">国产系统后台清理会关闭无障碍服务，保活后更稳定。\n免电池优化 → 自启动 → 最近任务锁定 → 省电策略无限制</string>
     <string name="keep_alive_step1">① 免电池优化（点上方按钮授权）</string>
     <string name="keep_alive_step2">② 自启动权限（跳转设置开启）</string>
     <string name="keep_alive_step3">③ 最近任务界面长按本应用 → 点「锁」图标锁定</string>
     <string name="keep_alive_step4">④ 设置→应用→本应用→省电策略选「无限制」；关闭「暂停未使用的应用」</string>
     <string name="btn_request_projection">授权截屏</string>
-    <string name="status_notification_permission">通知权限：未授予</string>
-    <string name="status_accessibility">无障碍服务：未开启</string>
-    <string name="status_overlay">悬浮窗权限：未授予</string>
-    <string name="status_enabled_accessibility">无障碍服务：已开启</string>
-    <string name="status_enabled_overlay">悬浮窗权限：已授予</string>
-    <string name="status_ready">准备就绪：点击下方按钮开始</string>
 
-    <string name="settings_slide_ratio">滑动距离（内容高度百分比）</string>
-    <string name="settings_interval">截图间隔（毫秒）</string>
-    <string name="settings_scale">输出缩放（0.5~1.0）</string>
-    <string name="settings_max_frames">内存保护上限（张）</string>
-
-    <string name="usage_title">使用说明</string>
-    <string name="usage_step1">1. 打开本页，依次授予：无障碍服务、通知权限、悬浮窗权限</string>
-    <string name="usage_step2">2. 打开目标应用进入要截取的页面，回到本页点"开始截屏"，再切回目标应用</string>
-    <string name="usage_step3">3. 自动滚动开始后，需要结束时点击悬浮窗"停止"按钮（或下拉通知栏点"停止截屏"），长图将自动保存</string>
+    <string name="usage_title">使用步骤</string>
+    <string name="usage_step1">打开目标应用，停在要截取的页面最上方</string>
+    <string name="usage_step2">回到本页点「开始截屏」，再切回目标应用</string>
+    <string name="usage_step3">滚动到想要的范围，点任意停止入口</string>
+    <string name="usage_step4">长图自动保存到相册</string>
     <string name="usage_note">提示：请保持竖屏使用，并关闭系统"自动旋转"，以保证拼接质量。</string>
 
     <string name="notif_channel_capture">截屏服务</string>
@@ -41,7 +51,6 @@
     <string name="notif_title_done">长截图已保存</string>
     <string name="notif_text_done">点击查看 %1$s</string>
 
-    <string name="toast_memory_limit">已达内存保护上限（%1$d 张），请点击停止按钮结束保存</string>
     <string name="toast_saved">已保存到相册：%1$s</string>
     <string name="toast_landscape">请竖屏使用本功能</string>
     <string name="toast_no_accessibility">请先开启无障碍服务</string>

@@ -61,7 +61,6 @@ class CaptureService : Service() {
     private var slideRatio = 60
     private var intervalMs = 700L
     private var outputScale = 1.0f
-    private var maxFrames = 200
     private var topCrop = 0      // 状态栏高度（其内容动态变化，混入拼接会产生痕迹）
     private var bottomCrop = 0   // 底部导航栏/手势条高度
     private var floatingShown = false
@@ -263,12 +262,7 @@ class CaptureService : Service() {
                 if (r > 0) frames = r
                 updateUi()
 
-                // 3.5 用户设定的最大屏数（此前该设置未生效，已修复）+ 系统内存压力看门狗
-                if (frames >= maxFrames) {
-                    postToast("已达设定最大屏数（$maxFrames），自动停止并保存")
-                    stopCapture()
-                    break
-                }
+                // 3.5 系统内存压力看门狗（最大屏数设置已移除：高度+内存保护已足够）
                 am.getMemoryInfo(memInfo)
                 if (memInfo.availMem < 400L * 1024 * 1024) {
                     Log.w(TAG, "系统可用内存不足(${memInfo.availMem / 1048576}MB)，主动停止")
@@ -598,7 +592,6 @@ class CaptureService : Service() {
         // 截图间隔下限 800ms：滑动停止（含抬起惯性）需要时间，截早了画面还在动会污染匹配
         intervalMs = sp.getInt("interval", 900).coerceIn(800, 5000).toLong()
         outputScale = sp.getFloat("scale", 1.0f).coerceIn(0.5f, 1.0f)
-        maxFrames = sp.getInt("maxFrames", 200).coerceIn(20, 1000)
     }
 
     override fun onDestroy() {

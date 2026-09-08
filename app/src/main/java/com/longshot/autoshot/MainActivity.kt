@@ -11,41 +11,50 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.android.material.slider.Slider
 import com.longshot.autoshot.service.CaptureAccessibilityService
 import com.longshot.autoshot.service.CaptureService
 
 /**
- * 主界面：权限引导 + 开始/停止截屏 + 参数设置。
+ * 主界面：权限状态可视化 + 滑杆设置 + 开始/停止截屏。
  *
  * 流程：授权（无障碍/通知/悬浮窗）→ 媒体投影授权 → 启动前台服务自动滚动截屏。
- * 停止截屏：本页"停止并保存"按钮 / 悬浮窗按钮 / 通知栏按钮，程序不会自动停止。
+ * 停止截屏：本页"停止并保存" / 悬浮窗按钮 / 通知栏按钮，程序不会自动停止
+ * （仅内存预算/高度上限等保护条件会触发自动停止并保存）。
  */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var tvStatus: TextView
-    private lateinit var btnAccessibility: Button
-    private lateinit var btnOverlay: Button
-    private lateinit var btnStart: Button
-    private lateinit var btnStop: Button
-    private lateinit var btnViaProjection: TextView
-    private lateinit var btnKeepAlive: TextView
+    private lateinit var dotAcc: View
+    private lateinit var dotOv: View
+    private lateinit var dotNt: View
+    private lateinit var btnAccessibility: TextView
+    private lateinit var btnOverlay: TextView
+    private lateinit var btnNotification: TextView
+    private lateinit var btnStart: MaterialButton
+    private lateinit var btnStop: MaterialButton
+    private lateinit var btnViaProjection: MaterialButton
+    private lateinit var btnKeepAlive: MaterialButton
     private lateinit var tvKeepAliveSteps: TextView
-    private lateinit var etSlideRatio: EditText
-    private lateinit var etInterval: EditText
-    private lateinit var etScale: EditText
-    private lateinit var etMaxFrames: EditText
+    private lateinit var sRatio: Slider
+    private lateinit var tvRatioVal: TextView
+    private lateinit var sInterval: Slider
+    private lateinit var tvIntVal: TextView
+    private lateinit var scaleGroup: MaterialButtonToggleGroup
+    private lateinit var tvMeta: TextView
+
+    private var screenHeightPx = 0
 
     private val projectionLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK && result.data != null) {
-                // 把授权结果传给前台服务
                 startService(
                     Intent(this, CaptureService::class.java)
                         .setAction(CaptureService.ACTION_START)
@@ -58,26 +67,37 @@ class MainActivity : AppCompatActivity() {
         }
 
     private val notifPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            refreshStatus()
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         tvStatus = findViewById(R.id.tvStatus)
+        dotAcc = findViewById(R.id.dotAcc)
+        dotOv = findViewById(R.id.dotOv)
+        dotNt = findViewById(R.id.dotNt)
         btnAccessibility = findViewById(R.id.btnEnableAccessibility)
         btnOverlay = findViewById(R.id.btnEnableOverlay)
+        btnNotification = findViewById(R.id.btnEnableNotification)
         btnStart = findViewById(R.id.btnStart)
         btnStop = findViewById(R.id.btnStop)
         btnViaProjection = findViewById(R.id.btnViaProjection)
         btnKeepAlive = findViewById(R.id.btnKeepAlive)
         tvKeepAliveSteps = findViewById(R.id.tvKeepAliveSteps)
-        etSlideRatio = findViewById(R.id.etSlideRatio)
-        etInterval = findViewById(R.id.etInterval)
-        etScale = findViewById(R.id.etScale)
-        etMaxFrames = findViewById(R.id.etMaxFrames)
+        sRatio = findViewById(R.id.sRatio)
+        tvRatioVal = findViewById(R.id.tvRatioVal)
+        sInterval = findViewById(R.id.sInterval)
+        tvIntVal = findViewById(R.id.tvIntVal)
+        scaleGroup = findViewById(R.id.scaleGroup)
+        tvMeta = findViewById(R.id.tvMeta)
+
+        screenHeightPx = resources.displayMetrics.heightPixels
 
         loadSettingsToUi()
+        wireListeners()
 
         btnAccessibility.setOnClickListener {
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
@@ -90,19 +110,60 @@ class MainActivity : AppCompatActivity() {
                 )
             )
         }
+        btnNotification.setOnClickListener {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                notifPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                Toast.makeText(this, "当前系统无需单独授权通知", Toast.LENGTH_SHORT).show()
+            }
+        }
         btnStart.setOnClickListener { onStartClicked() }
         btnStop.setOnClickListener {
             startService(Intent(this, CaptureService::class.java).setAction(CaptureService.ACTION_STOP))
         }
-        // 无障碍免授权快捷模式（服务健康时免录屏弹窗）
         btnViaProjection.setOnClickListener { startViaAccessibility() }
-        // 保活引导：防止国产 ROM 后台清理导致无障碍服务被关
         btnKeepAlive.setOnClickListener { applyKeepAlive() }
     }
 
     override fun onResume() {
         super.onResume()
         refreshStatus()
+        updateMeta()
+    }
+
+    // ------------------------------------------------------------------
+    // 控件联动
+    // ------------------------------------------------------------------
+
+    private fun wireListeners() {
+        sRatio.addOnChangeListener { _, value, _ ->
+            tvRatioVal.text = "${value.toInt()}%"
+            updateMeta()
+        }
+        sInterval.addOnChangeListener { _, value, _ ->
+            tvIntVal.text = "${value.toInt()}ms"
+        }
+        scaleGroup.addOnButtonCheckedListener { _, _, _ ->
+            updateMeta()
+        }
+    }
+
+    /** 实时估算：当前滑动距离下每屏新增多少像素 */
+    private fun updateMeta() {
+        val ratio = sRatio.value
+        val scale = selectedScale()
+        // 与 CaptureAccessibilityService 相同的手势几何：实际滑动受"终点保护线"钳制
+        val startY = (screenHeightPx * 0.62f).toInt()
+        val topGuard = (screenHeightPx * 0.12f).toInt()
+        val travel = minOf((screenHeightPx * ratio / 100f).toInt(), startY - topGuard)
+        val fresh = ((screenHeightPx - 205 - travel) * scale).toInt()
+        tvMeta.text = "当前设置：每次新增 ≈ ${fresh}px · 内存与高度上限自动保护，无需手动设屏数"
+    }
+
+    private fun selectedScale(): Float = when (scaleGroup.checkedButtonId) {
+        R.id.btnScale075 -> 0.75f
+        R.id.btnScale050 -> 0.5f
+        else -> 1.0f
     }
 
     // ------------------------------------------------------------------
@@ -111,25 +172,30 @@ class MainActivity : AppCompatActivity() {
 
     private fun refreshStatus() {
         val accOn = CaptureAccessibilityService.isConnected
-        btnAccessibility.text =
-            getString(if (accOn) R.string.status_enabled_accessibility else R.string.status_accessibility)
-        btnAccessibility.setBackgroundColor(
-            ContextCompat.getColor(this, if (accOn) android.R.color.holo_green_light else android.R.color.holo_red_light)
-        )
+        setPerm(btnAccessibility, dotAcc, accOn)
 
         val overlayOn = Settings.canDrawOverlays(this)
-        btnOverlay.text =
-            getString(if (overlayOn) R.string.status_enabled_overlay else R.string.status_overlay)
-        btnOverlay.setBackgroundColor(
-            ContextCompat.getColor(this, if (overlayOn) android.R.color.holo_green_light else android.R.color.holo_red_light)
-        )
+        setPerm(btnOverlay, dotOv, overlayOn)
 
-        tvStatus.text = if (CaptureService.isCapturing) {
-            "● 截屏进行中（已截 ${CaptureService.currentFrames} 帧）：请切到目标应用查看滚动，" +
-                "结束请点下方「停止并保存」或悬浮窗/通知栏按钮"
-        } else {
-            getString(R.string.status_ready)
+        val notifOn = isNotificationPermissionGranted()
+        setPerm(btnNotification, dotNt, notifOn)
+
+        tvStatus.text = when {
+            CaptureService.isCapturing ->
+                getString(R.string.status_capturing, CaptureService.currentFrames)
+            else -> getString(R.string.status_ready)
         }
+        tvStatus.setBackgroundResource(
+            if (CaptureService.isCapturing) R.drawable.pill_ok else R.drawable.pill_idle
+        )
+    }
+
+    private fun setPerm(btn: TextView, dot: View, on: Boolean) {
+        dot.setBackgroundResource(if (on) R.drawable.dot_ok else R.drawable.dot_bad)
+        btn.text = getString(if (on) R.string.perm_on else R.string.perm_go)
+        btn.setTextColor(
+            ContextCompat.getColor(this, if (on) R.color.success else R.color.primary)
+        )
     }
 
     private fun isNotificationPermissionGranted(): Boolean =
@@ -156,6 +222,7 @@ class MainActivity : AppCompatActivity() {
 
         // 5. 默认路线：系统录屏授权（MediaProjection）——最稳定，兼容所有 ROM（每次会话授权一次）
         tvStatus.text = "正在请求屏幕录制授权…请在系统弹窗点「允许」"
+        tvStatus.setBackgroundResource(R.drawable.pill_idle)
         val mpm = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         projectionLauncher.launch(mpm.createScreenCaptureIntent())
     }
@@ -183,9 +250,6 @@ class MainActivity : AppCompatActivity() {
             Intent(this, CaptureService::class.java)
                 .setAction(CaptureService.ACTION_START)
         )
-        tvStatus.text =
-            "● 截屏进行中（无障碍快捷模式），请切到目标应用查看滚动；" +
-                "结束时点「停止并保存」或悬浮窗/通知栏按钮"
         Toast.makeText(this, "已启动（无障碍快捷模式），请切到目标应用开始滚动", Toast.LENGTH_LONG).show()
     }
 
@@ -194,17 +258,15 @@ class MainActivity : AppCompatActivity() {
     /**
      * 保活引导（国产 ROM：小米/红米/HyperOS 后台清理会把进程杀掉，
      * 导致无障碍服务从"已开启"自动变回"已关闭"）。
-     * 步骤：免电池优化 → 自启动 → 最近任务锁定 → 省电策略无限制。
      */
     private fun applyKeepAlive() {
-        // 1. 展开步骤说明
         tvKeepAliveSteps.visibility = View.VISIBLE
-        tvKeepAliveSteps.text = getString(R.string.keep_alive_step1) + "\n" +
+        tvKeepAliveSteps.text = getString(R.string.keep_alive_hint) + "\n" +
+            getString(R.string.keep_alive_step1) + "\n" +
             getString(R.string.keep_alive_step2) + "\n" +
             getString(R.string.keep_alive_step3) + "\n" +
             getString(R.string.keep_alive_step4)
 
-        // 2. 免电池优化（系统弹确认框）
         val pm = getSystemService(POWER_SERVICE) as android.os.PowerManager
         if (!pm.isIgnoringBatteryOptimizations(packageName)) {
             try {
@@ -215,18 +277,14 @@ class MainActivity : AppCompatActivity() {
                     )
                 )
             } catch (e: Exception) {
-                // 部分 ROM 不支持该 intent，直接跳应用详情页
                 goToAppDetails()
             }
         } else {
             Toast.makeText(this, "已开启免电池优化", Toast.LENGTH_SHORT).show()
         }
-
-        // 3. 跳转厂商自启动管理页（小米等）
         openAutoStartSettings()
     }
 
-    /** 厂商自启动管理页；失败则退回应用详情 */
     private fun openAutoStartSettings() {
         val manufacturer = Build.MANUFACTURER.lowercase()
         try {
@@ -249,8 +307,7 @@ class MainActivity : AppCompatActivity() {
                 else -> null
             }
             if (component != null) {
-                val intent = Intent().setComponent(component)
-                startActivity(intent)
+                startActivity(Intent().setComponent(component))
             } else {
                 goToAppDetails()
             }
@@ -277,19 +334,23 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadSettingsToUi() {
         val sp = getSharedPreferences("settings", Context.MODE_PRIVATE)
-        etSlideRatio.setText(sp.getInt("slideRatio", 60).toString())
-        etInterval.setText(sp.getInt("interval", 700).toString())
-        etScale.setText(sp.getFloat("scale", 1.0f).toString())
-        etMaxFrames.setText(sp.getInt("maxFrames", 200).toString())
+        sRatio.value = sp.getInt("slideRatio", 60).toFloat().coerceIn(10f, 85f)
+        sInterval.value = sp.getInt("interval", 900).toFloat().coerceIn(600f, 2000f)
+        tvRatioVal.text = "${sRatio.value.toInt()}%"
+        tvIntVal.text = "${sInterval.value.toInt()}ms"
+        when (sp.getFloat("scale", 1.0f)) {
+            0.75f -> scaleGroup.check(R.id.btnScale075)
+            0.5f -> scaleGroup.check(R.id.btnScale050)
+            else -> scaleGroup.check(R.id.btnScale100)
+        }
     }
 
     private fun saveSettingsFromUi() {
         val sp = getSharedPreferences("settings", Context.MODE_PRIVATE)
         sp.edit()
-            .putInt("slideRatio", etSlideRatio.text.toString().toIntOrNull()?.coerceIn(10, 85) ?: 60)
-            .putInt("interval", etInterval.text.toString().toIntOrNull()?.coerceIn(200, 5000) ?: 700)
-            .putFloat("scale", etScale.text.toString().toFloatOrNull()?.coerceIn(0.5f, 1.0f) ?: 1.0f)
-            .putInt("maxFrames", etMaxFrames.text.toString().toIntOrNull()?.coerceIn(20, 1000) ?: 200)
+            .putInt("slideRatio", sRatio.value.toInt())
+            .putInt("interval", sInterval.value.toInt())
+            .putFloat("scale", selectedScale())
             .apply()
     }
 }
