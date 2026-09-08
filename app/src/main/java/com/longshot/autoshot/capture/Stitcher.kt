@@ -20,11 +20,11 @@ import kotlin.math.abs
 class Stitcher(
     private val slidePx: Int,            // 期望滑动距离（原始屏 px，仅无提示时用于估算）
     private val outputWidth: Int,
-    private val maxTotalHeight: Int = 45_000,
+    private val maxTotalHeight: Int = 120_000,   // 像素高度兜底（实际限制由字节预算决定，此值仅防极端）
     private val memoryBudgetBytes: Long = 300L * 1024 * 1024   // 画布内存预算（字节），动态按字节算而非按像素
 ) {
 
-    /** 最近一次返回 -1 的原因（"屏数上限"/"内存预算"），供调用方给用户明确提示 */
+    /** 最近一次返回 -1 的原因（"高度上限"/"内存预算"），供调用方给用户明确提示 */
     var lastStopReason: String = ""
         private set
 
