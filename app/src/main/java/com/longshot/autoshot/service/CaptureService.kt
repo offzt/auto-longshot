@@ -27,9 +27,13 @@ import androidx.core.app.NotificationCompat
 import com.longshot.autoshot.R
 import com.longshot.autoshot.capture.AccessibilityScreenshotEngine
 import com.longshot.autoshot.capture.SaveManager
+import com.longshot.autoshot.capture.SegmentMerger
 import com.longshot.autoshot.capture.ScreenshotEngine
 import com.longshot.autoshot.capture.Stitcher
 import com.longshot.autoshot.ui.FloatingButton
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStream
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -64,6 +68,14 @@ class CaptureService : Service() {
     private var topCrop = 0      // 状态栏高度（其内容动态变化，混入拼接会产生痕迹）
     private var bottomCrop = 0   // 底部导航栏/手势条高度
     private var floatingShown = false
+
+    // ---- 分段续拼（长聊天记录）----
+    // 内存/高度保护触顶时【不结束会话】：当前段落盘为临时 PNG，重置拼接器继续滚动，
+    // 只有用户点"停止并保存"才真正结束；结束时把所有段流式合并成一张长图。
+    private var segmentCount = 0
+    private var currentOutW = 0
+    private var segDir: File? = null
+    private var autoSegmentHinted = false
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -196,6 +208,10 @@ class CaptureService : Service() {
                 .coerceIn(96L * 1024 * 1024, 320L * 1024 * 1024)
             Log.i(TAG, "内存预算=${budget / 1048576}MB（可用内存 ${memInfo.availMem / 1048576}MB）")
             stitcher = Stitcher(slidePx, outW, memoryBudgetBytes = budget)
+            currentOutW = outW
+            // 分段状态重置（同实例内可能再次开始截屏）
+            segmentCount = 0
+            autoSegmentHinted = false
 
             // 第一帧：不滑动直接截图（截图时隐藏悬浮窗防残影；偶发失败自动重试一次）
             var first = captureFrameHidingFloating()
@@ -249,16 +265,22 @@ class CaptureService : Service() {
                     continue
                 }
 
-                // 4. 裁剪状态栏/导航栏后拼接（携带实际滑动距离）；-1 = 达到内存保护上限
+                // 4. 裁剪状态栏/导航栏后拼接（携带实际滑动距离）；-1 = 达到内存/高度保护上限
                 val cropped = cropContent(frame)
-                val r = stitcher?.addFrame(cropped, lastScrollPx) ?: 0
+                var r = stitcher?.addFrame(cropped, lastScrollPx) ?: 0
+                if (r == -1) {
+                    // 保护触顶 → 【不结束会话】：封存当前段，重置拼接器，把触发帧放入新段继续滚
+                    if (!autoSegmentHinted) {
+                        autoSegmentHinted = true
+                        postToast("内容较长，已自动分段拼接：无需干预，点「停止并保存」才会结束")
+                    }
+                    Log.i(TAG, "分段触发（${stitcher?.lastStopReason}），第 ${segmentCount + 1} 段封存")
+                    sealSegment()
+                    stitcher = Stitcher(slidePx, currentOutW, memoryBudgetBytes = budget)
+                    r = stitcher?.addFrame(cropped, lastScrollPx) ?: 0
+                }
                 if (cropped !== frame) cropped.recycle()
                 frame.recycle()
-                if (r == -1) {
-                    postToast("已达${stitcher?.lastStopReason ?: "内存"}上限，自动停止并保存")
-                    stopCapture()
-                    break
-                }
                 if (r > 0) frames = r
                 updateUi()
 
@@ -417,7 +439,7 @@ class CaptureService : Service() {
     }
 
     private fun finishAndSave() {
-        Log.i(TAG, "开始收尾，共 $frames 帧（mode=$captureMode）")
+        Log.i(TAG, "开始收尾，共 $frames 帧（mode=$captureMode 段=$segmentCount）")
         // 一帧都没截到：属初始化/截图失败（已由 firstFrameErrorHint 提示），不再弹"保存失败"误导
         if (frames == 0) {
             Log.w(TAG, "未截取到任何画面，跳过保存")
@@ -426,14 +448,33 @@ class CaptureService : Service() {
             return
         }
 
-        val bitmap = stitcher?.finish()
+        // 封存最后一段（若有）
+        val last = stitcher?.finish()
         stitcher?.release()
         stitcher = null
 
         var uri: Uri? = null
-        if (bitmap != null) {
-            uri = SaveManager.save(this, bitmap)
-            bitmap.recycle()
+        if (segmentCount == 0 && last != null) {
+            // 单段快路径：与旧行为一致，直接保存位图
+            uri = SaveManager.save(this, last)
+            last.recycle()
+        } else {
+            if (last != null) {
+                segmentCount++
+                writeSegmentBitmap(last)
+                last.recycle()
+            }
+            val segs = segDir?.listFiles { _, name -> name.startsWith("seg_") }
+                ?.sortedBy { it.name }
+                ?: emptyList()
+            if (segs.isNotEmpty()) {
+                // 多段：流式合并（成品图不整体驻留内存，峰值 = 一段 + 输出缓冲）
+                Log.i(TAG, "开始流式合并 ${segs.size} 段 → 单张长图")
+                uri = SaveManager.saveStream(this) { out ->
+                    SegmentMerger.mergeSegments(segs, currentOutW, out)
+                }
+                cleanupSegments()
+            }
         }
 
         if (uri != null) {
@@ -444,6 +485,39 @@ class CaptureService : Service() {
             postToast("保存失败，请检查存储空间")
         }
         cleanupAndStop()
+    }
+
+    /** 把当前拼接画布封存为临时段 PNG（内存保护触发时调用），不结束会话 */
+    private fun sealSegment() {
+        val bmp = stitcher?.finish() ?: return
+        stitcher?.release()
+        segmentCount++
+        writeSegmentBitmap(bmp)
+        bmp.recycle()
+    }
+
+    private fun writeSegmentBitmap(bmp: Bitmap) {
+        try {
+            val dir = segDir ?: File(cacheDir, "segments").apply { mkdirs() }.also { segDir = it }
+            val f = File(dir, "seg_%03d.png".format(segmentCount))
+            FileOutputStream(f).use { out ->
+                if (!bmp.compress(Bitmap.CompressFormat.PNG, 100, out)) {
+                    Log.e(TAG, "分段写盘失败: ${f.name}")
+                } else {
+                    Log.i(TAG, "分段已落盘: ${f.name} (${bmp.width}x${bmp.height})")
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "写分段文件异常: ${e.message}", e)
+        }
+    }
+
+    private fun cleanupSegments() {
+        try {
+            segDir?.deleteRecursively()
+        } catch (_: Exception) {
+        }
+        segDir = null
     }
 
     private fun cleanupAndStop() {

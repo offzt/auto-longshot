@@ -9,6 +9,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import java.io.FileOutputStream
+import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -23,6 +24,21 @@ object SaveManager {
 
     /** 保存长图，返回相册 Uri；失败返回 null */
     fun save(context: Context, bitmap: Bitmap): Uri? {
+        return saveWith(context) { stream ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+        }
+    }
+
+    /**
+     * 流式保存：内容由 [writer] 直接写入相册输出流（用于分段合并，
+     * 避免把最终长图整体加载进内存）。writer 返回 false 视为失败。
+     */
+    fun saveStream(context: Context, writer: (OutputStream) -> Boolean): Uri? {
+        return saveWith(context) { stream -> writer(stream) }
+    }
+
+    /** MediaStore 流程统一封装：插入 → 写入 → 结束挂起状态 */
+    private fun saveWith(context: Context, writeTo: (OutputStream) -> Boolean): Uri? {
         return try {
             val time = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
             val fileName = "自动长截图_$time.png"
@@ -51,8 +67,8 @@ object SaveManager {
                 ?: throw IllegalStateException("MediaStore 插入失败")
 
             context.contentResolver.openOutputStream(uri)?.use { stream ->
-                if (!bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)) {
-                    throw IllegalStateException("PNG 压缩失败")
+                if (!writeTo(stream)) {
+                    throw IllegalStateException("写入失败")
                 }
             } ?: throw IllegalStateException("无法打开输出流")
 
