@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 卡片容器：统一背景，padding 由布局按令牌指定 -->
+    <style name="LongShotCard">
+        <item name="android:background">@drawable/bg_card</item>
+    </style>
+
+    <!-- 卡片内区块标题（加粗主文字） -->
+    <style name="LongShotCardTitle">
+        <item name="android:textSize">@dimen/text_body</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <!-- 次级说明文字（浅灰） -->
+    <style name="LongShotLabel">
+        <item name="android:textSize">@dimen/text_caption</item>
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
+    <!-- 权限/行 主标题 -->
+    <style name="LongShotRowTitle">
+        <item name="android:textSize">@dimen/text_body</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <!-- 权限/行 副标题（更小更浅） -->
+    <style name="LongShotRowSub">
+        <item name="android:textSize">@dimen/text_micro</item>
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
+    <!-- 「去开启 / 已开启」操作胶囊（三处复用） -->
+    <style name="LongShotPermAction">
+        <item name="android:paddingHorizontal">@dimen/space_3</item>
+        <item name="android:paddingVertical">@dimen/space_2</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">@dimen/text_label</item>
+        <item name="android:background">@drawable/bg_card</item>
+        <item name="android:textColor">@color/primary</item>
+    </style>
+
+    <!-- 使用步骤正文（四句复用） -->
+    <style name="LongShotStepText">
+        <item name="android:textSize">@dimen/text_label</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:lineSpacingExtra">@dimen/space_1</item>
+    </style>
+
+    <!-- 强调提示（主色，如「请竖屏」） -->
+    <style name="LongShotNote">
+        <item name="android:textSize">@dimen/text_caption</item>
+        <item name="android:textColor">@color/primary</item>
+        <item name="android:lineSpacingExtra">@dimen/space_1</item>
+    </style>
+
+    <!-- 实时估算行 -->
+    <style name="LongShotMeta">
+        <item name="android:textSize">@dimen/text_micro</item>
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
+    <!-- 滑杆右侧数值读数 -->
+    <style name="LongShotValue">
+        <item name="android:textSize">@dimen/text_label</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/primary</item>
+    </style>
+</resources>

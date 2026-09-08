@@ -5,8 +5,8 @@
     android:orientation="vertical"
     android:gravity="center"
     android:background="@drawable/bg_floating"
-    android:paddingHorizontal="14dp"
-    android:paddingVertical="10dp">
+    android:paddingHorizontal="@dimen/space_4"
+    android:paddingVertical="@dimen/space_3">
 
     <TextView
         android:id="@+id/tvCount"
@@ -14,13 +14,13 @@
         android:layout_height="wrap_content"
         android:text="@string/stop_capture"
         android:textColor="@color/white"
-        android:textSize="12sp" />
+        android:textSize="@dimen/text_caption" />
 
     <TextView
         android:id="@+id/tvFrames"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#CCFFFFFF"
-        android:textSize="11sp"
-        android:layout_marginTop="2dp" />
+        android:textColor="@color/floating_text"
+        android:textSize="@dimen/text_micro"
+        android:layout_marginTop="@dimen/space_1" />
 </LinearLayout>

@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="@dimen/space_4">
 
         <!-- 标题 + 状态胶囊 -->
         <LinearLayout
@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/app_name"
-                android:textSize="20sp"
+                android:textSize="@dimen/text_title"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary" />
 
@@ -35,81 +35,72 @@
                 android:background="@drawable/pill_idle"
                 android:text="@string/status_ready"
                 android:textColor="@color/success"
-                android:textSize="12sp" />
+                android:textSize="@dimen/text_micro" />
         </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="@dimen/space_1"
             android:text="@string/tagline"
-            android:textSize="12sp"
-            android:textColor="@color/text_secondary" />
+            style="@style/LongShotLabel" />
 
         <!-- 运行条件 -->
         <LinearLayout
+            style="@style/LongShotCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="@dimen/space_3"
             android:orientation="vertical"
-            android:background="@drawable/bg_card"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="4dp">
+            android:paddingHorizontal="@dimen/space_3"
+            android:paddingVertical="@dimen/space_1">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="@dimen/space_2"
                 android:text="@string/perm_title"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary" />
+                style="@style/LongShotCardTitle" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingVertical="8dp">
+                android:paddingVertical="@dimen/space_2">
 
                 <View
                     android:id="@+id/dotAcc"
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
+                    android:layout_width="@dimen/dot_size"
+                    android:layout_height="@dimen/dot_size"
                     android:background="@drawable/dot_bad" />
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="10dp"
+                    android:layout_marginStart="@dimen/space_3"
                     android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/perm_acc_title"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_primary" />
+                        style="@style/LongShotRowTitle" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/perm_acc_sub"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_secondary" />
+                        style="@style/LongShotRowSub" />
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/btnEnableAccessibility"
+                    style="@style/LongShotPermAction"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="8dp"
-                    android:gravity="center"
-                    android:text="@string/perm_go"
-                    android:textColor="@color/primary"
-                    android:textSize="13sp"
-                    android:background="@drawable/bg_card" />
+                    android:text="@string/perm_go" />
             </LinearLayout>
 
             <LinearLayout
@@ -117,47 +108,40 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingVertical="8dp">
+                android:paddingVertical="@dimen/space_2">
 
                 <View
                     android:id="@+id/dotOv"
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
+                    android:layout_width="@dimen/dot_size"
+                    android:layout_height="@dimen/dot_size"
                     android:background="@drawable/dot_bad" />
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="10dp"
+                    android:layout_marginStart="@dimen/space_3"
                     android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/perm_overlay_title"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_primary" />
+                        style="@style/LongShotRowTitle" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/perm_overlay_sub"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_secondary" />
+                        style="@style/LongShotRowSub" />
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/btnEnableOverlay"
+                    style="@style/LongShotPermAction"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="8dp"
-                    android:gravity="center"
-                    android:text="@string/perm_go"
-                    android:textColor="@color/primary"
-                    android:textSize="13sp"
-                    android:background="@drawable/bg_card" />
+                    android:text="@string/perm_go" />
             </LinearLayout>
 
             <LinearLayout
@@ -165,73 +149,64 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingVertical="8dp">
+                android:paddingVertical="@dimen/space_2">
 
                 <View
                     android:id="@+id/dotNt"
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
+                    android:layout_width="@dimen/dot_size"
+                    android:layout_height="@dimen/dot_size"
                     android:background="@drawable/dot_bad" />
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="10dp"
+                    android:layout_marginStart="@dimen/space_3"
                     android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/perm_notif_title"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_primary" />
+                        style="@style/LongShotRowTitle" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/perm_notif_sub"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_secondary" />
+                        style="@style/LongShotRowSub" />
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/btnEnableNotification"
+                    style="@style/LongShotPermAction"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="8dp"
-                    android:gravity="center"
-                    android:text="@string/perm_go"
-                    android:textColor="@color/primary"
-                    android:textSize="13sp"
-                    android:background="@drawable/bg_card" />
+                    android:text="@string/perm_go" />
             </LinearLayout>
         </LinearLayout>
 
         <!-- 截屏设置 -->
         <LinearLayout
+            style="@style/LongShotCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="@dimen/space_3"
             android:orientation="vertical"
-            android:background="@drawable/bg_card"
-            android:padding="12dp">
+            android:padding="@dimen/space_3">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/settings_title"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary" />
+                style="@style/LongShotCardTitle" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="@dimen/space_2"
                 android:text="@string/settings_slide_ratio"
-                android:textSize="12sp"
-                android:textColor="@color/text_secondary" />
+                style="@style/LongShotLabel" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -250,22 +225,19 @@
 
                 <TextView
                     android:id="@+id/tvRatioVal"
+                    style="@style/LongShotValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:text="60%"
-                    android:textSize="13sp"
-                    android:textColor="@color/primary"
-                    android:textStyle="bold" />
+                    android:text="60%" />
             </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/space_1"
                 android:text="@string/settings_interval"
-                android:textSize="12sp"
-                android:textColor="@color/text_secondary" />
+                style="@style/LongShotLabel" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -284,28 +256,25 @@
 
                 <TextView
                     android:id="@+id/tvIntVal"
+                    style="@style/LongShotValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:text="900ms"
-                    android:textSize="13sp"
-                    android:textColor="@color/primary"
-                    android:textStyle="bold" />
+                    android:text="900ms" />
             </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/space_1"
                 android:text="@string/settings_scale"
-                android:textSize="12sp"
-                android:textColor="@color/text_secondary" />
+                style="@style/LongShotLabel" />
 
             <com.google.android.material.button.MaterialButtonToggleGroup
                 android:id="@+id/scaleGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/space_1"
                 app:selectionRequired="true"
                 app:singleSelection="true">
 
@@ -318,7 +287,7 @@
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:text="1.0×"
-                    android:textSize="13sp" />
+                    android:textSize="@dimen/text_label" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnScale075"
@@ -329,7 +298,7 @@
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:text="0.75×"
-                    android:textSize="13sp" />
+                    android:textSize="@dimen/text_label" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnScale050"
@@ -340,47 +309,46 @@
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:text="0.5×"
-                    android:textSize="13sp" />
+                    android:textSize="@dimen/text_label" />
             </com.google.android.material.button.MaterialButtonToggleGroup>
 
             <TextView
                 android:id="@+id/tvMeta"
+                style="@style/LongShotMeta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textSize="11sp"
-                android:textColor="@color/text_secondary" />
+                android:layout_marginTop="@dimen/space_2" />
         </LinearLayout>
 
         <!-- 主操作 -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnStart"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="14dp"
+            android:layout_height="@dimen/btn_primary_height"
+            android:layout_marginTop="@dimen/space_4"
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:text="@string/btn_start"
             android:textColor="@color/on_primary"
-            android:textSize="16sp"
+            android:textSize="@dimen/text_button"
             app:backgroundTint="@color/primary" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnStop"
             style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="8dp"
+            android:layout_height="@dimen/btn_secondary_height"
+            android:layout_marginTop="@dimen/space_2"
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:text="@string/btn_stop"
-            android:textSize="14sp" />
+            android:textSize="@dimen/text_body" />
 
         <!-- 快捷入口 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="@dimen/space_3"
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
@@ -389,11 +357,11 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginEnd="6dp"
+                android:layout_marginEnd="@dimen/space_2"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 android:text="@string/btn_via_projection"
-                android:textSize="12sp" />
+                android:textSize="@dimen/text_caption" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnKeepAlive"
@@ -401,83 +369,76 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="6dp"
+                android:layout_marginStart="@dimen/space_2"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 android:text="@string/btn_keep_alive"
-                android:textSize="12sp"
+                android:textSize="@dimen/text_caption"
                 app:strokeColor="@color/error" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tvKeepAliveSteps"
             android:visibility="gone"
+            style="@style/LongShotCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:padding="10dp"
-            android:lineSpacingExtra="4dp"
+            android:layout_marginTop="@dimen/space_2"
+            android:padding="@dimen/space_2"
+            android:lineSpacingExtra="@dimen/space_1"
             android:text="@string/keep_alive_hint"
-            android:textSize="12sp"
-            android:textColor="@color/text_secondary"
-            android:background="@drawable/bg_card" />
+            android:textSize="@dimen/text_caption"
+            android:textColor="@color/text_secondary" />
 
         <!-- 使用步骤 -->
         <LinearLayout
+            style="@style/LongShotCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="@dimen/space_3"
             android:orientation="vertical"
-            android:background="@drawable/bg_card"
-            android:padding="12dp">
+            android:padding="@dimen/space_3">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/usage_title"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary" />
+                style="@style/LongShotCardTitle" />
+
+            <TextView
+                style="@style/LongShotStepText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_2"
+                android:text="@string/usage_step1" />
+
+            <TextView
+                style="@style/LongShotStepText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_1"
+                android:text="@string/usage_step2" />
+
+            <TextView
+                style="@style/LongShotStepText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_1"
+                android:text="@string/usage_step3" />
+
+            <TextView
+                style="@style/LongShotStepText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_1"
+                android:text="@string/usage_step4" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:lineSpacingExtra="4dp"
-                android:text="1. 打开目标应用，停在要截取的页面最上方"
-                android:textSize="13sp"
-                android:textColor="@color/text_secondary" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:lineSpacingExtra="4dp"
-                android:text="2. 回到本页点「开始截屏」，再切回目标应用"
-                android:textSize="13sp"
-                android:textColor="@color/text_secondary" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:lineSpacingExtra="4dp"
-                android:text="3. 滚动到想要的范围，点任意停止入口"
-                android:textSize="13sp"
-                android:textColor="@color/text_secondary" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:lineSpacingExtra="4dp"
-                android:text="4. 长图自动保存到相册"
-                android:textSize="13sp"
-                android:textColor="@color/text_secondary" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:lineSpacingExtra="4dp"
+                android:layout_marginTop="@dimen/space_2"
                 android:text="@string/usage_note"
-                android:textSize="12sp"
-                android:textColor="@color/primary" />
+                style="@style/LongShotNote" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

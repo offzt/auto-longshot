@@ -15,4 +15,8 @@
     <color name="bg">#F4F6F8</color>
     <color name="card">#FFFFFF</color>
     <color name="divider">#E0E0E0</color>
+
+    <!-- 悬浮窗（派生自主色，避免第二支绿） -->
+    <color name="floating_bg">#D90F6E56</color>
+    <color name="floating_text">#CCFFFFFF</color>
 </resources>
