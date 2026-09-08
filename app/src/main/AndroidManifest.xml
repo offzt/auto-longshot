@@ -23,7 +23,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.WeChatLongShot">
+        android:theme="@style/Theme.AutoLongShot">
 
         <activity
             android:name=".MainActivity"
@@ -35,7 +35,7 @@
             </intent-filter>
         </activity>
 
-        <!-- 无障碍服务：模拟拖动滚动微信聊天列表 -->
+        <!-- 无障碍服务：模拟拖动滚动目标应用的列表界面 -->
         <service
             android:name=".service.CaptureAccessibilityService"
             android:exported="false"

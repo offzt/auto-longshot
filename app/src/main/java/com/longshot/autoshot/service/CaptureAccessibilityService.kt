@@ -1,4 +1,4 @@
-package com.longshot.wechat.service
+package com.longshot.autoshot.service
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
@@ -9,9 +9,9 @@ import android.util.Log
 import android.view.WindowManager
 
 /**
- * 无障碍服务：负责在微信聊天界面模拟"拖动"手势向上滚动。
+ * 无障碍服务：负责在目标应用的列表界面模拟"拖动"手势向上滚动。
  *
- * 拖动（drag）优于 fling 的原因：微信列表对拖动是"跟手"滚动、无惯性，
+ * 拖动（drag）优于 fling 的原因：聊天类应用的列表对拖动是"跟手"滚动、无惯性，
  * 内容滚动距离 ≈ 手势位移，便于拼接器用固定偏移 + 行匹配去重。
  *
  * 注意：本服务只负责滑动，不负责判断是否停止 ——

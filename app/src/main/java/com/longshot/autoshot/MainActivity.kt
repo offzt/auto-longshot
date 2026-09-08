@@ -1,4 +1,4 @@
-package com.longshot.wechat
+package com.longshot.autoshot
 
 import android.Manifest
 import android.content.ComponentName
@@ -18,8 +18,8 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.longshot.wechat.service.CaptureAccessibilityService
-import com.longshot.wechat.service.CaptureService
+import com.longshot.autoshot.service.CaptureAccessibilityService
+import com.longshot.autoshot.service.CaptureService
 
 /**
  * 主界面：权限引导 + 开始/停止截屏 + 参数设置。
@@ -125,7 +125,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         tvStatus.text = if (CaptureService.isCapturing) {
-            "● 截屏进行中（已截 ${CaptureService.currentFrames} 帧）：请切回微信查看滚动，" +
+            "● 截屏进行中（已截 ${CaptureService.currentFrames} 帧）：请切到目标应用查看滚动，" +
                 "结束请点下方「停止并保存」或悬浮窗/通知栏按钮"
         } else {
             getString(R.string.status_ready)
@@ -184,9 +184,9 @@ class MainActivity : AppCompatActivity() {
                 .setAction(CaptureService.ACTION_START)
         )
         tvStatus.text =
-            "● 截屏进行中（无障碍快捷模式），请切回微信查看滚动；" +
+            "● 截屏进行中（无障碍快捷模式），请切到目标应用查看滚动；" +
                 "结束时点「停止并保存」或悬浮窗/通知栏按钮"
-        Toast.makeText(this, "已启动（无障碍快捷模式），请切回微信开始滚动", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, "已启动（无障碍快捷模式），请切到目标应用开始滚动", Toast.LENGTH_LONG).show()
     }
 
     private fun toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_LONG).show()

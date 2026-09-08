@@ -1,4 +1,4 @@
-package com.longshot.wechat.capture
+package com.longshot.autoshot.capture
 
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
@@ -49,7 +49,7 @@ class ScreenshotEngine {
         imageReader = ImageReader.newInstance(screenWidth, screenHeight, PixelFormat.RGBA_8888, 2)
 
         virtualDisplay = projection.createVirtualDisplay(
-            "WeChatLongShotCapture",
+            "AutoLongShotCapture",
             screenWidth,
             screenHeight,
             densityDpi,

@@ -4,12 +4,12 @@ plugins {
 }
 
 android {
-    namespace = "com.longshot.wechat"
+    namespace = "com.longshot.autoshot"
     compileSdk = 37 // Android 17 / API Level 37
     buildToolsVersion = "36.0.0"
 
     defaultConfig {
-        applicationId = "com.longshot.wechat"
+        applicationId = "com.longshot.autoshot"
         minSdk = 26
         targetSdk = 37
         versionCode = 1

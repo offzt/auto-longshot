@@ -1,4 +1,4 @@
-package com.longshot.wechat.service
+package com.longshot.autoshot.service
 
 import android.accessibilityservice.AccessibilityService
 import android.app.Activity
@@ -24,12 +24,12 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
-import com.longshot.wechat.R
-import com.longshot.wechat.capture.AccessibilityScreenshotEngine
-import com.longshot.wechat.capture.SaveManager
-import com.longshot.wechat.capture.ScreenshotEngine
-import com.longshot.wechat.capture.Stitcher
-import com.longshot.wechat.ui.FloatingButton
+import com.longshot.autoshot.R
+import com.longshot.autoshot.capture.AccessibilityScreenshotEngine
+import com.longshot.autoshot.capture.SaveManager
+import com.longshot.autoshot.capture.ScreenshotEngine
+import com.longshot.autoshot.capture.Stitcher
+import com.longshot.autoshot.ui.FloatingButton
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -130,7 +130,7 @@ class CaptureService : Service() {
         startAsForeground()
         FloatingButton.show(this)
         floatingShown = true
-        postToast("截屏已启动，请切到微信开始滚动（若画面无滚动请检查无障碍服务）")
+        postToast("截屏已启动，请切到目标应用开始滚动（若画面无滚动请检查无障碍服务）")
 
         if (captureMode == MODE_PROJECTION) {
             // 投影模式必然来自"已授权"分支（resultCode!=-1 且 data!=null），显式断言以防残留
@@ -588,8 +588,8 @@ class CaptureService : Service() {
     companion object {
         private const val TAG = "CaptureService"
 
-        const val ACTION_START = "com.longshot.wechat.action.START"
-        const val ACTION_STOP = "com.longshot.wechat.action.STOP"
+        const val ACTION_START = "com.longshot.autoshot.action.START"
+        const val ACTION_STOP = "com.longshot.autoshot.action.STOP"
 
         const val EXTRA_RESULT_CODE = "result_code"
         const val EXTRA_DATA = "result_data"

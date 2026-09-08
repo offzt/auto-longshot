@@ -1,4 +1,4 @@
-package com.longshot.wechat.capture
+package com.longshot.autoshot.capture
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -66,7 +66,7 @@ class Stitcher(
             return 1
         }
 
-        // 第二帧起：检测 App 固定 UI（微信聊天页的标题栏 + 输入栏，每帧像素级相同）。
+        // 第二帧起：检测 App 固定 UI（聊天页的标题栏 + 输入栏，每帧像素级相同）。
         // 不裁除的后果：①它们原样重复出现在长图里；②探针条匹配到固定栏造成假峰。
         if (!fixedDetected) {
             fixedDetected = true
@@ -229,7 +229,7 @@ class Stitcher(
         val px = IntArray(w)
         val hashes = LongArray(h)
         val isContent = BooleanArray(h)
-        // 屏蔽最右侧 4 列（≈屏幕右边 3%）：微信列表滚动条所在区域，
+        // 屏蔽最右侧 4 列（≈屏幕右边 3%）：列表滚动条所在区域，
         // 其位置随滚动变化，会让重叠区的同一行内容哈希不同 → 真峰被污染
         val validW = w - 4
         var r = 0
@@ -260,7 +260,7 @@ class Stitcher(
     /**
      * 检测两帧之间的"固定 UI 区"（逐行像素比对）：
      * 顶部从第 0 行起、底部从最后一行起的连续相同行块 = 每帧不变的 App 界面元素
-     * （微信聊天页的标题栏/输入栏）。固定区必须从拼接中裁除——否则既会在长图里
+     * （聊天页的标题栏/输入栏）。固定区必须从拼接中裁除——否则既会在长图里
      * 原样重复出现，又会污染探针匹配（输入栏是探针条的组成部分，永远"匹配成功"）。
      */
     private fun detectFixedRegions(a: Bitmap, b: Bitmap) {

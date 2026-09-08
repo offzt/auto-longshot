@@ -1,4 +1,4 @@
-package com.longshot.wechat.ui
+package com.longshot.autoshot.ui
 
 import android.content.Context
 import android.content.Intent
@@ -7,8 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
-import com.longshot.wechat.R
-import com.longshot.wechat.service.CaptureService
+import com.longshot.autoshot.R
+import com.longshot.autoshot.service.CaptureService
 
 /**
  * 悬浮停止按钮：截屏过程中悬浮在屏幕上的"停止截屏"按钮。

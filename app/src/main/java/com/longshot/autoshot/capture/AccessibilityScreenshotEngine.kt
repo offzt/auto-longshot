@@ -1,4 +1,4 @@
-package com.longshot.wechat.capture
+package com.longshot.autoshot.capture
 
 import android.accessibilityservice.AccessibilityService
 import android.graphics.Bitmap

@@ -1,4 +1,4 @@
-package com.longshot.wechat.capture
+package com.longshot.autoshot.capture
 
 import android.content.ContentValues
 import android.content.Context
@@ -25,7 +25,7 @@ object SaveManager {
     fun save(context: Context, bitmap: Bitmap): Uri? {
         return try {
             val time = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-            val fileName = "微信长截图_$time.png"
+            val fileName = "自动长截图_$time.png"
             val mimeType = "image/png"
 
             val values = ContentValues().apply {
